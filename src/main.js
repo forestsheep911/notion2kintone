@@ -61,7 +61,7 @@ const iterateDB = async () => {
 const preResult = await iterateDB()
 // console.log(preResult)
 
-preResult.records.forEach((record) => {
+for (const record of preResult.records) {
   for (const [key, value] of Object.entries(record)) {
     // console.log(value)
     if (value && value.Name) {
@@ -73,7 +73,6 @@ preResult.records.forEach((record) => {
       record.Tags = { value: value.Tags }
     }
     delete record[key]
-    // console.log(record)
   }
-})
-console.log(preResult)
+}
+console.log(preResult.records)
