@@ -23,7 +23,7 @@ const iterateDB = async () => {
   const dbArray = await await notion.databases.query({ database_id: 'b269009a9a44488d9ff7fe0c646179c9' })
   const propertitsSet = await Promise.all(
     dbArray.results.map(async (pageRecord) => {
-      const t = await Promise.all(
+      const record = await Promise.all(
         Object.keys(pageRecord.properties).map(async (propertyName) => {
           // console.log(propertyName)
           const properties = {}
@@ -35,13 +35,45 @@ const iterateDB = async () => {
           // console.log(properties)
           if (properties[propertyName].object === 'list') {
             // console.log(properties[propertyName].results)
+            // console.log(properties[propertyName].results[0])
+            if (properties[propertyName].results[0].type === 'title') {
+              // console.log(properties[propertyName].results[0][properties[propertyName].results[0].id].plain_text)
+            }
           }
-          return properties
+          if (propertyName === 'Name') {
+            // console.log(properties.Name.results[0].title.plain_text)
+            return { Name: properties.Name.results[0].title.plain_text }
+          }
+          if (propertyName === 'sele') {
+            // console.log(properties.sele.select.name)
+            return { Tags: properties.sele.select.name }
+          }
+          // return properties
+          // return {}
         }),
       )
-      return t
+      return { ...record }
     }),
   )
-  console.log(propertitsSet)
+  // console.log({ records: propertitsSet })
+  return { records: propertitsSet }
 }
-iterateDB()
+const preResult = await iterateDB()
+// console.log(preResult)
+
+preResult.records.forEach((record) => {
+  for (const [key, value] of Object.entries(record)) {
+    // console.log(value)
+    if (value && value.Name) {
+      // console.log(value.Name)
+      record.Name = { value: value.Name }
+    }
+    if (value && value.Tags) {
+      // console.log(value.Name)
+      record.Tags = { value: value.Tags }
+    }
+    delete record[key]
+    // console.log(record)
+  }
+})
+console.log(preResult)
