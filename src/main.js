@@ -58,19 +58,26 @@ const iterateDB = async () => {
 }
 const preResult = await iterateDB()
 
+const fieldCodeMap = {
+  标签: 'label',
+  定价: 'price',
+  作者: 'author',
+  书名: 'book_name',
+  ISBN: 'isbn',
+}
 for (const record of preResult.records) {
   for (const [key, value] of Object.entries(record)) {
     if (value) {
-      record[Object.keys(value)[0]] = { value: Object.values(value)[0] }
+      record[fieldCodeMap[Object.keys(value)[0]]] = { value: Object.values(value)[0] }
     }
     delete record[key]
   }
 }
 preResult.records.map((e) => {
-  console.log(e)
+  // console.log(e)
 })
 preResult.app = 43
-console.log(preResult.records)
+// console.log(preResult.records)
 
 const client = new KintoneRestAPIClient({
   baseUrl: 'https://cndevqpofif.cybozu.cn',
