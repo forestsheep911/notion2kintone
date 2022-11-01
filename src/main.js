@@ -2,9 +2,6 @@ import { Client } from '@notionhq/client'
 
 const notion = new Client({ auth: 'secret_CNqoK82a5MQaBosS6jMEchHbQhX2806zNljRgShGuK' })
 
-// const urlQueryDB = 'https://api.notion.com/v1/databases/b269009a9a44488d9ff7fe0c646179c9/query'
-// const urlRetrieveSinglePage = 'https://api.notion.com/v1/pages/'
-
 const queryDatabase = async (dbid) => {
   const response = await notion.databases.query({
     database_id: dbid,
@@ -32,47 +29,42 @@ const iterateDB = async () => {
             property_id: pageRecord.properties[propertyName].id,
           })
           properties[propertyName] = propertyData
-          // console.log(properties)
-          if (properties[propertyName].object === 'list') {
-            // console.log(properties[propertyName].results)
-            // console.log(properties[propertyName].results[0])
-            if (properties[propertyName].results[0].type === 'title') {
-              // console.log(properties[propertyName].results[0][properties[propertyName].results[0].id].plain_text)
+          if (propertyData.object === 'list' && propertyData.results.length > 0) {
+            if (propertyData.results[0].type === 'title') {
+              return { [propertyName]: propertyData.results[0].title.plain_text }
+            } else if (propertyData.results[0].type === 'rich_text') {
+              return {
+                [propertyName]: propertyData.results[0].rich_text.plain_text,
+              }
+            }
+          } else if (propertyData.type === 'multi_select') {
+            return {
+              [propertyName]: propertyData.multi_select.map((p) => {
+                return p.name
+              }),
+            }
+          } else if (propertyData.type === 'number') {
+            return {
+              [propertyName]: propertyData.number,
             }
           }
-          if (propertyName === 'Name') {
-            // console.log(properties.Name.results[0].title.plain_text)
-            return { Name: properties.Name.results[0].title.plain_text }
-          }
-          if (propertyName === 'sele') {
-            // console.log(properties.sele.select.name)
-            return { Tags: properties.sele.select.name }
-          }
-          // return properties
-          // return {}
         }),
       )
       return { ...record }
     }),
   )
-  // console.log({ records: propertitsSet })
   return { records: propertitsSet }
 }
 const preResult = await iterateDB()
-// console.log(preResult)
 
 for (const record of preResult.records) {
   for (const [key, value] of Object.entries(record)) {
-    // console.log(value)
-    if (value && value.Name) {
-      // console.log(value.Name)
-      record.Name = { value: value.Name }
-    }
-    if (value && value.Tags) {
-      // console.log(value.Name)
-      record.Tags = { value: value.Tags }
+    if (value) {
+      record[Object.keys(value)[0]] = { value: Object.values(value)[0] }
     }
     delete record[key]
   }
 }
-console.log(preResult.records)
+preResult.records.map((e) => {
+  console.log(e)
+})
