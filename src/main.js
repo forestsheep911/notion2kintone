@@ -1,4 +1,5 @@
 import { Client } from '@notionhq/client'
+import { KintoneRestAPIClient } from '@kintone/rest-api-client'
 
 const notion = new Client({ auth: 'secret_CNqoK82a5MQaBosS6jMEchHbQhX2806zNljRgShGuK' })
 
@@ -68,3 +69,15 @@ for (const record of preResult.records) {
 preResult.records.map((e) => {
   console.log(e)
 })
+preResult.app = 43
+console.log(preResult.records)
+
+const client = new KintoneRestAPIClient({
+  baseUrl: 'https://cndevqpofif.cybozu.cn',
+  auth: {
+    apiToken: 'WKuCUxqW8gRYrgs57w5UVAU9GUKYPbTU210MJ0bx',
+  },
+})
+
+const addedToKintone = await client.record.addRecords(preResult)
+console.log(addedToKintone)
